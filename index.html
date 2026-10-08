@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InventoryOS - Modern Inventory Management System</title>
+  <meta name="description" content="Production-ready inventory management web application demonstrating Factory, Singleton, and Strategy design patterns with shadcn UI aesthetic.">
+  
+  <!-- Modern Typography (Plus Jakarta Sans) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2318181b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z'/><path d='m3.3 7 8.7 5 8.7-5'/><path d='M12 22V12'/></svg>">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Top App Navigation Bar -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-section">
+        <div class="brand-icon">
+          <!-- Package / Box SVG Icon -->
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m7.5 4.27 9 5.15"/>
+            <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
+            <path d="m3.3 7 8.7 5 8.7-5"/>
+            <path d="M12 22V12"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">InventoryOS <span class="badge badge-secondary" style="font-size: 0.6875rem; font-weight: 500;">v1.0.0</span></h1>
+          <p class="brand-subtitle">OOP & Design Patterns: Factory • Singleton • Strategy</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Seed Reset Button -->
+        <button id="btnResetSeed" class="btn btn-outline btn-sm" title="Reset to default sample data">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+          </svg>
+          Reset Data
+        </button>
+
+        <!-- Dark/Light Mode Switcher -->
+        <button id="btnThemeToggle" class="btn btn-outline btn-icon" aria-label="Toggle Theme" title="Switch dark/light mode">
+          <!-- Sun Icon -->
+          <svg id="iconSun" class="card-icon" style="display: none;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2"/>
+            <path d="M12 20v2"/>
+            <path d="m4.93 4.93 1.41 1.41"/>
+            <path d="m17.66 17.66 1.41 1.41"/>
+            <path d="M2 12h2"/>
+            <path d="M20 12h2"/>
+            <path d="m6.34 17.66-1.41 1.41"/>
+            <path d="m19.07 4.93-1.41 1.41"/>
+          </svg>
+          <!-- Moon Icon -->
+          <svg id="iconMoon" class="card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+          </svg>
+        </button>
+
+        <!-- Add Item Primary CTA -->
+        <button id="btnOpenAddModal" class="btn btn-primary" title="Add item via Factory Pattern">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14"/>
+            <path d="M12 5v14"/>
+          </svg>
+          Add Item
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="container">
+
+    <!-- KPI Metric Cards Grid -->
+    <section class="stats-grid" aria-label="Inventory Metrics">
+      <!-- Total Value -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Total Inventory Value</span>
+          <!-- Currency Peso Icon -->
+          <svg class="card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 3h7a5 5 0 0 1 0 10H6Z"/>
+            <path d="M6 8h11"/>
+            <path d="M6 13h9"/>
+            <path d="M6 3v18"/>
+          </svg>
+        </div>
+        <div class="card-value" id="kpiTotalValue">₱0.00</div>
+        <div class="card-sub">
+          <span class="badge badge-secondary" style="font-size: 0.6875rem;">Array.reduce</span>
+          <span>Calculated across all units</span>
+        </div>
+      </div>
+
+      <!-- Total Items -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Total Products in Stock</span>
+          <svg class="card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="7" height="7" x="3" y="3" rx="1"/>
+            <rect width="7" height="7" x="14" y="3" rx="1"/>
+            <rect width="7" height="7" x="14" y="14" rx="1"/>
+            <rect width="7" height="7" x="3" y="14" rx="1"/>
+          </svg>
+        </div>
+        <div class="card-value" id="kpiTotalItems">0</div>
+        <div class="card-sub">
+          <span id="kpiTotalUnits" style="font-weight: 600; color: var(--card-foreground);">0</span>
+          <span>total physical pieces</span>
+        </div>
+      </div>
+
+      <!-- Low Stock Alerts -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Low Stock Alert (≤ 5)</span>
+          <svg class="card-icon" style="color: var(--destructive);" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <div class="card-value" id="kpiLowStock">0</div>
+        <div class="card-sub">
+          <span class="badge badge-secondary" style="font-size: 0.6875rem;">Array.filter</span>
+          <span id="kpiLowStockLabel">Needs attention</span>
+        </div>
+      </div>
+
+      <!-- Factory Patterns / Breakdown -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Factory Types Breakdown</span>
+          <svg class="card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="m4.93 4.93 4.24 4.24"/>
+            <path d="m14.83 9.17 4.24-4.24"/>
+            <path d="m14.83 14.83 4.24 4.24"/>
+            <path d="m9.17 14.83-4.24 4.24"/>
+          </svg>
+        </div>
+        <div class="card-value" id="kpiTypesCount" style="font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; margin-top: 0.35rem;">
+          <span class="badge badge-standard" id="kpiStandardCount">0 Std</span>
+          <span class="badge badge-perishable" id="kpiPerishableCount">0 Per</span>
+          <span class="badge badge-fragile" id="kpiFragileCount">0 Frag</span>
+        </div>
+        <div class="card-sub" style="margin-top: 0.5rem;">
+          <span>Created via ItemFactory pattern</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Navigation & Filter Panel -->
+    <section class="control-panel">
+      <!-- Tabs -->
+      <div class="tabs-container">
+        <div class="tabs" role="tablist">
+          <button class="tab-btn active" data-tab="catalog" role="tab" aria-selected="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="8" y1="6" x2="21" y2="6"/>
+              <line x1="8" y1="12" x2="21" y2="12"/>
+              <line x1="8" y1="18" x2="21" y2="18"/>
+              <line x1="3" y1="6" x2="3.01" y2="6"/>
+              <line x1="3" y1="12" x2="3.01" y2="12"/>
+              <line x1="3" y1="18" x2="3.01" y2="18"/>
+            </svg>
+            All Inventory
+          </button>
+          <button class="tab-btn" data-tab="lowstock" role="tab" aria-selected="false">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            Low Stock (<span id="tabLowStockBadge">0</span>)
+          </button>
+          <button class="tab-btn" data-tab="checkout" role="tab" aria-selected="false">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="8" cy="21" r="1"/>
+              <circle cx="19" cy="21" r="1"/>
+              <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+            </svg>
+            Strategy Checkout
+          </button>
+          <button class="tab-btn" data-tab="architecture" role="tab" aria-selected="false">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 18 22 12 16 6"/>
+              <polyline points="8 6 2 12 8 18"/>
+            </svg>
+            Design Patterns
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters & Live Search (visible for catalog and lowstock tabs) -->
+      <div id="filterBar" class="filter-bar">
+        <div class="search-box">
+          <label for="searchInput" class="sr-only">Search inventory</label>
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.3-4.3"/>
+          </svg>
+          <input type="text" id="searchInput" class="input-text with-icon" placeholder="Search by ID (e.g. A1), name, or category..." autocomplete="off" aria-label="Search inventory by ID, name, or category">
+        </div>
+
+        <div class="filter-actions">
+          <!-- Type Filter -->
+          <label for="typeFilter" class="sr-only">Filter by item type</label>
+          <select id="typeFilter" class="select-input" aria-label="Filter by type">
+            <option value="all">All Item Types</option>
+            <option value="standard">Standard Item</option>
+            <option value="perishable">Perishable Item</option>
+            <option value="fragile">Fragile Item</option>
+          </select>
+
+          <!-- Sort Select -->
+          <label for="sortSelect" class="sr-only">Sort inventory items</label>
+          <select id="sortSelect" class="select-input" aria-label="Sort inventory">
+            <option value="id-asc">Sort: ID (Ascending)</option>
+            <option value="name-asc">Sort: Name (A-Z)</option>
+            <option value="price-asc">Sort: Price (₱ Low → High)</option>
+            <option value="price-desc">Sort: Price (₱ High → Low)</option>
+            <option value="stock-asc">Sort: Stock (Low → High)</option>
+            <option value="stock-desc">Sort: Stock (High → Low)</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 1 & 2: Inventory Data Table Section -->
+    <section id="tableSection" class="table-wrapper">
+      <table class="data-table" aria-label="Inventory Table">
+        <thead>
+          <tr>
+            <th style="width: 80px;">ID</th>
+            <th>Item & Category</th>
+            <th style="width: 130px;">Item Type</th>
+            <th style="width: 120px;">Price (₱)</th>
+            <th style="width: 110px;">Stock</th>
+            <th>Type Attributes / Status</th>
+            <th style="text-align: right; width: 170px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="inventoryTableBody">
+          <!-- Dynamically populated via app.js -->
+        </tbody>
+      </table>
+
+      <!-- Empty State Container -->
+      <div id="emptyState" class="empty-state" style="display: none;">
+        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="m15 9-6 6"/>
+          <path d="m9 9 6 6"/>
+        </svg>
+        <h3 class="empty-title">No inventory items found</h3>
+        <p class="empty-desc">No items match your active search or filter criteria.</p>
+        <button id="btnClearFilters" class="btn btn-outline btn-sm">Clear Filters</button>
+      </div>
+    </section>
+
+    <!-- Tab 3: Strategy Checkout Section (Standalone View) -->
+    <section id="checkoutSection" style="display: none; margin-top: 1.5rem;">
+      <div class="card checkout-card-container">
+        <div class="card-header checkout-card-header">
+          <div>
+            <h2 style="font-size: 1.25rem; font-weight: 700; letter-spacing: -0.025em;">Strategy Checkout</h2>
+            <p style="font-size: 0.8125rem; color: var(--muted-foreground); margin-top: 0.25rem;">
+              Calculate totals with swappable pricing strategies.
+            </p>
+          </div>
+          <span class="badge badge-secondary">Strategy</span>
+        </div>
+
+        <div class="checkout-layout">
+          <!-- Left Column: Order Inputs & Strategy Selection -->
+          <div class="checkout-main-col">
+            <!-- Item & Quantity Selector -->
+            <div class="grid-2 checkout-input-grid">
+              <div class="form-group">
+                <label class="form-label" for="checkoutItemSelect">Item <span class="req">*</span></label>
+                <select id="checkoutItemSelect" class="select-input" style="width: 100%;">
+                  <!-- Options populated dynamically -->
+                </select>
+                <span id="checkoutItemStockHint" class="form-help">Available: 0 units</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="checkoutQuantityInput">Quantity <span class="req">*</span></label>
+                <input type="number" id="checkoutQuantityInput" class="input-text" min="1" value="1" placeholder="1">
+                <span id="checkoutQuantityHint" class="form-help">Units to order</span>
+              </div>
+            </div>
+
+            <!-- Strategy Selection Cards (Horizontal Grid) -->
+            <div class="form-group">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.25rem;">
+                <label class="form-label">Pricing Strategy:</label>
+                <span style="font-size: 0.75rem; color: var(--muted-foreground);">Select rule</span>
+              </div>
+              <div class="strategy-list">
+                <!-- Regular Pricing -->
+                <label class="strategy-card active" id="cardStrategyRegular">
+                  <div class="strategy-card-top">
+                    <span class="badge badge-secondary" style="font-size: 0.6875rem;">Standard</span>
+                    <input type="radio" name="checkoutStrategy" value="regular" class="strategy-radio" aria-label="Regular Pricing" checked>
+                  </div>
+                  <div class="strategy-info">
+                    <div class="strategy-title">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+                        <line x1="7" y1="7" x2="7.01" y2="7"/>
+                      </svg>
+                      <span>Regular</span>
+                    </div>
+                    <p class="strategy-desc">Full base price.</p>
+                  </div>
+                  <div class="strategy-formula">
+                    <code>price × qty</code>
+                  </div>
+                </label>
+
+                <!-- Bulk Pricing -->
+                <label class="strategy-card" id="cardStrategyBulk">
+                  <div class="strategy-card-top">
+                    <span class="badge badge-success" style="font-size: 0.6875rem;">10% Off</span>
+                    <input type="radio" name="checkoutStrategy" value="bulk" class="strategy-radio" aria-label="Bulk Pricing">
+                  </div>
+                  <div class="strategy-info">
+                    <div class="strategy-title">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m7.5 4.27 9 5.15"/>
+                        <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
+                        <path d="m3.3 7 8.7 5 8.7-5"/>
+                        <path d="M12 22V12"/>
+                      </svg>
+                      <span>Bulk (5+)</span>
+                    </div>
+                    <p class="strategy-desc">10% off for 5+ units.</p>
+                  </div>
+                  <div class="strategy-formula">
+                    <code>subtotal × 0.90</code>
+                  </div>
+                </label>
+
+                <!-- Member Pricing -->
+                <label class="strategy-card" id="cardStrategyMember">
+                  <div class="strategy-card-top">
+                    <span class="badge badge-perishable" style="font-size: 0.6875rem;">15% Off</span>
+                    <input type="radio" name="checkoutStrategy" value="member" class="strategy-radio" aria-label="Member Pricing">
+                  </div>
+                  <div class="strategy-info">
+                    <div class="strategy-title">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                      </svg>
+                      <span>Member</span>
+                    </div>
+                    <p class="strategy-desc">15% discount applied.</p>
+                  </div>
+                  <div class="strategy-formula">
+                    <code>subtotal × 0.85</code>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Live Receipt & Order Summary -->
+          <div class="checkout-summary-col">
+            <div class="receipt-card">
+              <div class="receipt-header">
+                <span>Order Summary</span>
+                <span id="receiptStrategyBadge" class="badge badge-outline">Regular</span>
+              </div>
+
+              <div class="receipt-body">
+                <div class="receipt-row">
+                  <span style="color: var(--muted-foreground);">Item:</span>
+                  <span id="receiptItemName" style="font-weight: 600; text-align: right; max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">-</span>
+                </div>
+                <div class="receipt-row">
+                  <span style="color: var(--muted-foreground);">Unit Price:</span>
+                  <span id="receiptUnitPrice">₱0.00</span>
+                </div>
+                <div class="receipt-row">
+                  <span style="color: var(--muted-foreground);">Quantity:</span>
+                  <span id="receiptQty">1</span>
+                </div>
+                <div class="receipt-row">
+                  <span style="color: var(--muted-foreground);">Subtotal:</span>
+                  <span id="receiptSubtotal">₱0.00</span>
+                </div>
+                <div class="receipt-row" id="receiptDiscountRow" style="display: none; color: var(--success-text);">
+                  <span>Discount:</span>
+                  <span id="receiptDiscountVal" style="font-weight: 600;">-₱0.00</span>
+                </div>
+                <div class="receipt-row" id="receiptHandlingRow" style="display: none; color: var(--purple-text);">
+                  <span>Handling Fee:</span>
+                  <span id="receiptHandlingVal" style="font-weight: 600;">+₱0.00</span>
+                </div>
+              </div>
+
+              <div class="receipt-row receipt-total">
+                <span>Total:</span>
+                <span id="receiptFinalTotal" style="color: var(--foreground); font-size: 1.25rem;">₱0.00</span>
+              </div>
+
+              <button id="btnProcessCheckout" class="btn btn-primary btn-checkout-submit">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 6 9 17l-5-5"/>
+                </svg>
+                Complete Checkout
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 4: Design Patterns & OOP Architecture Deep Dive -->
+    <section id="architectureSection" style="display: none; margin-top: 1.5rem;">
+      <div style="margin-bottom: 1.5rem;">
+        <h2 style="font-size: 1.35rem; font-weight: 700; letter-spacing: -0.025em;">Weeks 1–5 OOP & Design Patterns Architecture</h2>
+        <p style="font-size: 0.875rem; color: var(--muted-foreground); margin-top: 0.25rem;">
+          How this JavaScript application satisfies all requirements using clean OOP boundaries and GoF design patterns.
+        </p>
+      </div>
+
+      <div class="pattern-grid">
+        <!-- 1. Factory Pattern -->
+        <div class="pattern-card">
+          <div class="pattern-card-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="m4.93 4.93 4.24 4.24"/>
+              <path d="m14.83 9.17 4.24-4.24"/>
+              <path d="m14.83 14.83 4.24 4.24"/>
+              <path d="m9.17 14.83-4.24 4.24"/>
+            </svg>
+            1. Factory Pattern
+          </div>
+          <p style="font-size: 0.8125rem; color: var(--muted-foreground);">
+            <code style="font-family: var(--font-mono); font-weight: 600;">ItemFactory.createItem(type, data)</code> encapsulates instantiation logic without client code calling <code style="font-family: var(--font-mono);">new</code> on subclasses directly.
+          </p>
+          <div class="pattern-code">
+// src/factory/ItemFactory.js
+switch (type.toLowerCase()) {
+  case 'standard':
+    return new StandardItem(id, name, ...);
+  case 'perishable':
+    return new PerishableItem(..., expiry);
+  case 'fragile':
+    return new FragileItem(..., fee);
+}
+          </div>
+        </div>
+
+        <!-- 2. Singleton Pattern -->
+        <div class="pattern-card">
+          <div class="pattern-card-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>
+            </svg>
+            2. Singleton Pattern
+          </div>
+          <p style="font-size: 0.8125rem; color: var(--muted-foreground);">
+            <code style="font-family: var(--font-mono); font-weight: 600;">InventoryStore.getInstance()</code> guarantees a single, central store instance throughout the app lifecycle with array CRUD methods.
+          </p>
+          <div class="pattern-code">
+// src/store/InventoryStore.js
+static getInstance() {
+  if (!InventoryStore.instance) {
+    InventoryStore.instance = new InventoryStore();
+  }
+  return InventoryStore.instance;
+}
+          </div>
+        </div>
+
+        <!-- 3. Strategy Pattern -->
+        <div class="pattern-card">
+          <div class="pattern-card-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            3. Strategy Pattern
+          </div>
+          <p style="font-size: 0.8125rem; color: var(--muted-foreground);">
+            <code style="font-family: var(--font-mono); font-weight: 600;">PricingContext</code> swappable calculation algorithms: Regular, Bulk (10% off for 5+), and Member (15% discount).
+          </p>
+          <div class="pattern-code">
+// src/strategies/PricingStrategies.js
+const context = new PricingContext();
+context.setStrategy(new BulkPricing());
+const total = context.calculateTotal(price, qty);
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =========================================================================
+       MODALS / SHADCN DIALOGS
+       ========================================================================= -->
+
+  <!-- Modal 1: Add New Item (Factory Pattern) -->
+  <div id="modalAddItem" class="dialog-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="addModalTitle">
+    <div class="dialog-content">
+      <div class="dialog-header">
+        <div>
+          <h2 id="addModalTitle" class="dialog-title">Add New Item</h2>
+          <p class="dialog-description">Create an item instance using the Factory Pattern.</p>
+        </div>
+        <button type="button" class="btn btn-outline btn-icon btn-sm btnCloseModal" aria-label="Close dialog">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <form id="formAddItem">
+        <div class="dialog-body">
+          <!-- Item Type Selector (Factory) -->
+          <div class="form-group">
+            <label class="form-label">Item Type (Factory Subclass) <span class="req">*</span></label>
+            <div class="type-segmented">
+              <div class="type-btn active" data-type="standard">
+                <span class="type-btn-title">Standard</span>
+                <span class="type-btn-desc">Regular goods</span>
+              </div>
+              <div class="type-btn" data-type="perishable">
+                <span class="type-btn-title">Perishable</span>
+                <span class="type-btn-desc">Has expiry date</span>
+              </div>
+              <div class="type-btn" data-type="fragile">
+                <span class="type-btn-title">Fragile</span>
+                <span class="type-btn-desc">Handling fee</span>
+              </div>
+            </div>
+            <input type="hidden" id="addType" value="standard">
+          </div>
+
+          <div class="grid-2">
+            <!-- ID -->
+            <div class="form-group">
+              <label class="form-label" for="addId">Item ID <span class="req">*</span></label>
+              <input type="text" id="addId" class="input-text" placeholder="e.g. A4" required autocomplete="off">
+            </div>
+
+            <!-- Category -->
+            <div class="form-group">
+              <label class="form-label" for="addCategory">Category <span class="req">*</span></label>
+              <input type="text" id="addCategory" class="input-text" placeholder="e.g. Electronics" required autocomplete="off">
+            </div>
+          </div>
+
+          <!-- Name -->
+          <div class="form-group">
+            <label class="form-label" for="addName">Item Name <span class="req">*</span></label>
+            <input type="text" id="addName" class="input-text" placeholder="e.g. Mechanical Keyboard" required autocomplete="off">
+          </div>
+
+          <div class="grid-2">
+            <!-- Price in PHP -->
+            <div class="form-group">
+              <label class="form-label" for="addPrice">Price in Pesos (₱) <span class="req">*</span></label>
+              <input type="number" id="addPrice" class="input-text" step="0.01" min="0" placeholder="0.00" required>
+            </div>
+
+            <!-- Quantity -->
+            <div class="form-group">
+              <label class="form-label" for="addQuantity">Quantity in Stock <span class="req">*</span></label>
+              <input type="number" id="addQuantity" class="input-text" min="0" placeholder="0" required>
+            </div>
+          </div>
+
+          <!-- Conditional: Expiry Date for Perishable -->
+          <div id="groupExpiry" class="form-group" style="display: none;">
+            <label class="form-label" for="addExpiryDate">Expiration Date <span class="req">*</span></label>
+            <input type="date" id="addExpiryDate" class="input-text">
+            <span class="form-help">Perishable items track expiry and alert when expired.</span>
+          </div>
+
+          <!-- Conditional: Handling Fee for Fragile -->
+          <div id="groupHandling" class="form-group" style="display: none;">
+            <label class="form-label" for="addHandlingFee">Handling Fee (₱) <span class="req">*</span></label>
+            <input type="number" id="addHandlingFee" class="input-text" step="0.01" min="0" value="5.00">
+            <span class="form-help">Added during delicate handling and packaging.</span>
+          </div>
+        </div>
+
+        <div class="dialog-footer">
+          <button type="button" class="btn btn-outline btnCloseModal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create via Factory</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 2: Edit Item -->
+  <div id="modalEditItem" class="dialog-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
+    <div class="dialog-content">
+      <div class="dialog-header">
+        <div>
+          <h2 id="editModalTitle" class="dialog-title">Edit Inventory Item</h2>
+          <p class="dialog-description">Update price, stock, or name for this product.</p>
+        </div>
+        <button type="button" class="btn btn-outline btn-icon btn-sm btnCloseModal" aria-label="Close dialog">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <form id="formEditItem">
+        <input type="hidden" id="editId">
+        <div class="dialog-body">
+          <div class="form-group">
+            <label class="form-label" for="editIdDisplay">Item ID</label>
+            <input type="text" id="editIdDisplay" class="input-text" disabled style="opacity: 0.7; cursor: not-allowed;">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="editName">Item Name <span class="req">*</span></label>
+            <input type="text" id="editName" class="input-text" required autocomplete="off">
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="editPrice">Price in Pesos (₱) <span class="req">*</span></label>
+              <input type="number" id="editPrice" class="input-text" step="0.01" min="0" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="editQuantity">Quantity in Stock <span class="req">*</span></label>
+              <input type="number" id="editQuantity" class="input-text" min="0" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="dialog-footer">
+          <button type="button" class="btn btn-outline btnCloseModal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 3: Delete Confirmation (Alert Dialog) -->
+  <div id="modalDeleteItem" class="dialog-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+    <div class="dialog-content" style="max-width: 440px;">
+      <div class="dialog-header">
+        <div>
+          <h2 id="deleteModalTitle" class="dialog-title">Delete Item</h2>
+          <p class="dialog-description">Are you sure you want to remove this item?</p>
+        </div>
+        <button type="button" class="btn btn-outline btn-icon btn-sm btnCloseModal" aria-label="Close dialog">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="dialog-body">
+        <p style="font-size: 0.875rem;">
+          This will permanently remove <strong id="deleteItemName">Item</strong> (<span id="deleteItemId">ID</span>) from the singleton store.
+        </p>
+      </div>
+
+      <div class="dialog-footer">
+        <button type="button" class="btn btn-outline btnCloseModal">Cancel</button>
+        <button type="button" id="btnConfirmDelete" class="btn btn-destructive">Delete Item</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Toast Notifications (Sonner-like) -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <!-- Core JavaScript OOP / Pattern Modules -->
+  <script src="src/models/Item.js"></script>
+  <script src="src/factory/ItemFactory.js"></script>
+  <script src="src/store/InventoryStore.js"></script>
+  <script src="src/strategies/PricingStrategies.js"></script>
+
+  <!-- Application Controller -->
+  <script src="app.js"></script>
+</body>
+</html>
